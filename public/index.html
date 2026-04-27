@@ -40,3 +40,262 @@
     .toolbar { display: flex; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
     .srch { flex: 1; min-width: 140px; position: relative; }
     .srch input { width: 100%; padding: 8px 10px 8px 30px; font-size: 13px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: inherit; }
+    .srch input:focus { outline: none; border-color: var(--navy2); }
+    .srch-ic { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; color: var(--hint); }
+    .fsort { padding: 8px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: inherit; cursor: pointer; }
+    .stk-btn { padding: 8px 13px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--muted); font-family: inherit; cursor: pointer; white-space: nowrap; transition: .15s; display: flex; align-items: center; gap: 5px; }
+    .stk-btn.on { background: #fff8e1; border-color: var(--gold); color: #a06000; }
+    .layout { display: grid; grid-template-columns: 1fr 300px; height: calc(100vh - 120px); min-height: 500px; }
+    .news-panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; background: var(--bg); }
+    .news-count { font-size: 11px; color: var(--muted); padding: 6px 14px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .clr-kw { font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; cursor: pointer; font-family: inherit; }
+    .clr-kw:hover { color: var(--red); border-color: var(--red); }
+    .news-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+    .ncard { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all .15s; }
+    .ncard:hover { border-color: #bcc4d0; box-shadow: 0 2px 8px rgba(0,0,0,.06); transform: translateY(-1px); }
+    .ncard-top { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 5px; }
+    .cdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .ntitle { font-size: 13px; font-weight: 500; line-height: 1.55; color: var(--text); flex: 1; }
+    .sbtn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: .15s; color: var(--hint); }
+    .sbtn:hover, .sbtn.on { color: var(--gold); border-color: var(--gold); }
+    .nmeta { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+    .nsrc { font-size: 11px; color: var(--muted); }
+    .ndate { font-size: 11px; color: var(--hint); }
+    .npill { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; }
+    .nsum { font-size: 12px; color: var(--muted); line-height: 1.65; margin-top: 5px; }
+    .nlnk { font-size: 11px; color: #1a6fc4; text-decoration: none; margin-top: 5px; display: inline-block; }
+    .nlnk:hover { text-decoration: underline; }
+    .spin-w { display: flex; align-items: center; gap: 9px; padding: 28px; justify-content: center; color: var(--muted); font-size: 13px; }
+    .spin { width: 17px; height: 17px; border: 2px solid var(--border); border-top-color: var(--navy); border-radius: 50%; animation: sp .8s linear infinite; }
+    @keyframes sp { to { transform: rotate(360deg); } }
+    .empty { padding: 48px; text-align: center; color: var(--muted); font-size: 13px; }
+    .chat-panel { display: flex; flex-direction: column; background: var(--surface); overflow: hidden; }
+    .chat-hdr { padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+    .cico { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; flex-shrink: 0; }
+    .cname { font-size: 13px; font-weight: 500; }
+    .csub { font-size: 11px; color: var(--muted); }
+    .online { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; margin-left: auto; flex-shrink: 0; }
+    .cbtn-clear { font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; margin-left: 6px; }
+    .cbtn-clear:hover { color: var(--red); border-color: var(--red); }
+    .cmsgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+    .msg { max-width: 93%; display: flex; flex-direction: column; gap: 3px; }
+    .msg.u { align-self: flex-end; align-items: flex-end; }
+    .msg.a { align-self: flex-start; align-items: flex-start; }
+    .bub { padding: 9px 12px; border-radius: 13px; font-size: 13px; line-height: 1.65; }
+    .msg.u .bub { background: var(--navy); color: #fff; border-radius: 13px 13px 3px 13px; }
+    .msg.a .bub { background: var(--bg); border: 1px solid var(--border); border-radius: 13px 13px 13px 3px; color: var(--text); }
+    .mt { font-size: 10px; color: var(--hint); }
+    .copy-btn { font-size: 10px; background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; cursor: pointer; color: var(--muted); font-family: inherit; margin-top: 2px; display: none; }
+    .msg.a:hover .copy-btn { display: inline-block; }
+    .dots { display: flex; gap: 3px; align-items: center; padding: 4px 0; }
+    .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--hint); animation: bo 1s infinite; }
+    .dots span:nth-child(2) { animation-delay: .15s; }
+    .dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bo { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+    .qq-area { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 11px; border-top: 1px solid var(--border); flex-shrink: 0; background: var(--surface); }
+    .qq { font-size: 11px; padding: 4px 10px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; font-family: inherit; transition: .15s; }
+    .qq:hover { background: var(--border); color: var(--text); }
+    .cinput { padding: 10px 11px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; background: var(--surface); }
+    .cta { flex: 1; padding: 8px 10px; font-size: 13px; border: 1px solid var(--border); border-radius: 9px; resize: none; min-height: 36px; max-height: 80px; font-family: inherit; background: var(--bg); color: var(--text); line-height: 1.5; }
+    .cta:focus { outline: none; border-color: var(--navy2); }
+    .sbtn2 { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: .15s; }
+    .sbtn2:hover { background: var(--navy2); }
+    .sbtn2:disabled { background: var(--hint); cursor: default; }
+    @media (max-width: 640px) {
+      .panel-tabs { display: flex; }
+      .layout { grid-template-columns: 1fr; height: calc(100vh - 150px); }
+      .chat-panel { display: none; }
+      .chat-panel.mobile-show { display: flex; }
+      .news-panel.mobile-hide { display: none; }
+      .hdr-sub { display: none; }
+    }
+  </style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="logo">LS</div>
+    <div>
+      <div class="hdr-title">ライフシフト インテリジェンス</div>
+      <div class="hdr-sub">中高年の生き方改革ニュースハブ｜Life Shift Intelligence</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="upd-badge" id="updBadge">起動中...</span>
+    <button class="hbtn" onclick="fetchAll(true)">↻ 更新</button>
+  </div>
+</header>
+<div class="prog-wrap"><div class="prog-fill" id="prog"></div></div>
+<div class="panel-tabs" id="panelTabs">
+  <button class="ptab on" onclick="switchPanel('news',this)">📰 ニュース</button>
+  <button class="ptab" onclick="switchPanel('chat',this)">💬 チャット</button>
+</div>
+<div class="cat-bar">
+  <button class="ctab on" onclick="swCat('all',this)">🗾 すべて</button>
+  <button class="ctab" onclick="swCat('career',this)">💼 キャリア</button>
+  <button class="ctab" onclick="swCat('money',this)">💰 マネー</button>
+  <button class="ctab" onclick="swCat('health',this)">❤️ 健康</button>
+  <button class="ctab" onclick="swCat('policy',this)">🏛️ 政策</button>
+  <button class="ctab" onclick="swCat('global',this)">🌍 グローバル</button>
+  <button class="ctab" onclick="swCat('innovation',this)">💡 イノベ</button>
+</div>
+<div class="toolbar">
+  <div class="srch"><span class="srch-ic">🔍</span><input type="text" id="kw" placeholder="キーワード検索..." oninput="render()"></div>
+  <select class="fsort" id="sortSel" onchange="render()"><option value="new">新しい順</option><option value="old">古い順</option><option value="src">情報源順</option></select>
+  <button class="stk-btn" id="stkToggle" onclick="toggleStkView()">⭐ ストック <span id="stkCnt">0</span></button>
+</div>
+<div class="layout">
+  <div class="news-panel" id="newsPane">
+    <div class="news-count"><span id="nc">読み込み中...</span><button class="clr-kw" id="clearKwBtn" onclick="clearKw()" style="display:none">✕ クリア</button></div>
+    <div class="news-list" id="nl"><div class="spin-w"><div class="spin"></div>ニュースを取得中...</div></div>
+  </div>
+  <div class="chat-panel" id="chatPane">
+    <div class="chat-hdr">
+      <div class="cico">AI</div>
+      <div><div class="cname">LSアシスタント</div><div class="csub">ライフシフト専門AI</div></div>
+      <div class="online"></div>
+      <button class="cbtn-clear" onclick="clearChat()">履歴クリア</button>
+    </div>
+    <div class="cmsgs" id="cmsgs">
+      <div class="msg a">
+        <div class="bub">こんにちは！ライフシフト専門AIアシスタントです。<br><br>📰 左のニュースをクリックして詳しく聞いたり、<br>💡 下のボタンでよくある質問にも答えます。<br>⭐ ストックした記事もAIが参照して回答します。</div>
+        <div class="mt" id="initT"></div>
+      </div>
+    </div>
+    <div class="qq-area">
+      <button class="qq" onclick="qQ('変身資産（マインド・知恵・仲間・評判・健康）を具体的に増やす方法は？')">変身資産とは？</button>
+      <button class="qq" onclick="qQ('50〜60代がキャリアシフトする成功パターンと注意点は？')">50-60代のキャリア</button>
+      <button class="qq" onclick="qQ('マルチステージ型人生と従来の3ステージ型の違いを詳しく教えて')">マルチステージ</button>
+      <button class="qq" onclick="qQ('日本の高齢化・雇用政策の最新動向とライフシフトへの影響は？')">日本の政策</button>
+      <button class="qq" onclick="qQ('世界のactive aging・longevity economyの最新トレンドは？')">グローバル動向</button>
+      <button class="qq" onclick="qQ('人生100年時代のマネープラン：NISA・iDeCo・年金の活用法は？')">マネープラン</button>
+    </div>
+    <div class="cinput">
+      <textarea class="cta" id="cta" placeholder="質問を入力...（Enterで送信、Shift+Enterで改行）" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+      <button class="sbtn2" id="sendBtn" onclick="sendChat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+const API_ENDPOINT='/api/claude';
+const CATS={all:{l:'すべて',c:'#0a2240'},career:{l:'キャリア',c:'#1a6fc4'},money:{l:'マネー',c:'#2e7d32'},health:{l:'健康',c:'#c62828'},policy:{l:'政策',c:'#6a1b9a'},global:{l:'グローバル',c:'#e65100'},innovation:{l:'イノベ',c:'#00695c'}};
+const QUERIES=[
+  {q:'ミドルシニア キャリア転換 転職 2026',c:'career'},
+  {q:'定年延長 継続雇用 70歳 シニア 2026',c:'career'},
+  {q:'副業 複業 50代 フリーランス 独立 2026',c:'career'},
+  {q:'シニア起業 第二キャリア 独立 2026',c:'career'},
+  {q:'リスキリング 中高年 学び直し 社会人 2026',c:'career'},
+  {q:'NISA iDeCo 老後 資産形成 2026',c:'money'},
+  {q:'年金改革 受給開始 繰下げ 2026',c:'money'},
+  {q:'インフレ 物価 シニア 家計 生活費 2026',c:'money'},
+  {q:'相続 資産承継 シニア 贈与税 2026',c:'money'},
+  {q:'健康寿命 予防医療 フレイル シニア 2026',c:'health'},
+  {q:'ウェルビーイング 中高年 運動 メンタル 2026',c:'health'},
+  {q:'マインドフルネス 禅 中高年 ストレス 2026',c:'health'},
+  {q:'高齢化社会 雇用政策 厚労省 内閣府 2026',c:'policy'},
+  {q:'地方移住 シニア 地域活性化 関係人口 2026',c:'policy'},
+  {q:'介護 社会保障 制度改革 給付費 2026',c:'policy'},
+  {q:'active aging longevity economy 2026',c:'global'},
+  {q:'retirement reform aging workforce OECD 2026',c:'global'},
+  {q:'silver economy Europe Asia 2026',c:'global'},
+  {q:'AI シニア デジタル活用 EdTech 2026',c:'innovation'},
+  {q:'ヘルステック 高齢者 スタートアップ 2026',c:'innovation'}
+];
+const LSU_CONTEXT=`【ライフシフト大学テキスト要約】
+■変身資産5領域: ①マインド②知恵③仲間④評判⑤健康
+■マルチステージ型人生: 就労期60年（20〜80歳）のマルチステージへ
+■80歳現役時代: 男81歳・女87歳（2024年）。長期間労働へ。
+■5M: ①マインドセット②ミッション創造③学び④見える化⑤マルチ化
+■変身資産チェック: Can×Will→Create。10年後ビジョンへのギャップを埋める。
+■支援型リーダーシップ: 共感力・傾聴力・モチベート力・コーチング力
+■イノベーターシップ: VUCAの時代に変革し続ける力。青銀共創。`;
+let allNews=[],curCat='all',showStk=false,chatHist=[],chatBusy=false;
+const TOTAL_Q=QUERIES.length;
+function nowStr(){return new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});}
+document.getElementById('initT').textContent=nowStr();
+function getStocked(){try{return JSON.parse(localStorage.getItem('ls_stocked')||'[]');}catch{return[];}}
+function saveStocked(a){try{localStorage.setItem('ls_stocked',JSON.stringify(a));}catch{}}
+function toggleStk(id,btn,e){e.stopPropagation();let s=getStocked();const i=s.indexOf(id);if(i>=0){s.splice(i,1);btn.classList.remove('on');btn.textContent='☆';}else{s.push(id);btn.classList.add('on');btn.textContent='★';}saveStocked(s);updateStkCount(s.length);if(showStk)render();}
+function updateStkCount(n){if(n===undefined)n=getStocked().length;document.getElementById('stkCnt').textContent=n;document.getElementById('stkToggle').className='stk-btn'+(showStk?' on':'');}
+function toggleStkView(){showStk=!showStk;document.getElementById('stkToggle').className='stk-btn'+(showStk?' on':'');render();}
+function setProgress(pct){document.getElementById('prog').style.width=pct+'%';}
+async function fetchQ(qObj){
+  try{
+    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたはライフシフト専門ニュース収集AIです。ウェブ検索で最新記事を3件取得し、JSON配列のみ返してください。信頼できる情報源のみ: NHK,日経,読売,朝日,毎日,厚労省,内閣府,経産省,Reuters,BBC,FT,OECD等。除外: まとめサイト,転載,個人ブログ。各要素: id,title,source,url,summary(80字以内),date,category(${qObj.c}),isGlobal(boolean)`,messages:[{role:'user',content:`「${qObj.q}」を検索し、最新の信頼できるニュース3件をJSON配列で返してください。`}]})});
+    if(!r.ok)return[];
+    const d=await r.json();
+    const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const s=txt.indexOf('['),e=txt.lastIndexOf(']');
+    if(s<0||e<0)return[];
+    const arr=JSON.parse(txt.slice(s,e+1));
+    return arr.map((a,i)=>({...a,id:a.id||(qObj.c+'_'+Date.now()+'_'+i),category:qObj.c}));
+  }catch{return[];}
+}
+async function fetchAll(manual=false){
+  if(manual){allNews=[];setProgress(0);}
+  document.getElementById('nl').innerHTML='<div class="spin-w"><div class="spin"></div>ニュースを取得中...</div>';
+  document.getElementById('updBadge').textContent='取得中...';
+  const BATCH=4;
+  for(let i=0;i<QUERIES.length;i+=BATCH){
+    const chunk=QUERIES.slice(i,i+BATCH);
+    const results=await Promise.all(chunk.map(q=>fetchQ(q)));
+    results.forEach(r=>allNews=allNews.concat(r));
+    setProgress(Math.round(Math.min(i+BATCH,QUERIES.length)/TOTAL_Q*100));
+    render();
+  }
+  setProgress(100);
+  const ts=new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('updBadge').textContent='更新: '+ts;
+  updateStkCount();
+  setTimeout(()=>setProgress(0),1500);
+}
+function render(){
+  const kw=document.getElementById('kw').value.trim().toLowerCase();
+  const sort=document.getElementById('sortSel').value;
+  const stocked=getStocked();
+  document.getElementById('clearKwBtn').style.display=kw?'inline':'none';
+  let base=showStk?allNews.filter(n=>stocked.includes(n.id)):(curCat==='all'?allNews:allNews.filter(n=>n.category===curCat));
+  if(kw)base=base.filter(n=>[(n.title||''),(n.summary||''),(n.source||'')].join(' ').toLowerCase().includes(kw));
+  const seen=new Set();
+  base=base.filter(n=>{if(!n.title||seen.has(n.title))return false;seen.add(n.title);return true;});
+  if(sort==='src')base.sort((a,b)=>(a.source||'').localeCompare(b.source||'','ja'));
+  else if(sort==='old')base.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const items=base.slice(0,50);
+  document.getElementById('nc').textContent=`${items.length}件表示 / 取得済み${allNews.length}件${showStk?' [ストック]':''}${kw?` | "${kw}"`:''}`;
+  const nl=document.getElementById('nl');
+  if(items.length===0){nl.innerHTML=`<div class="empty">${showStk?'⭐ ストックした記事がありません':'📭 該当する記事がありません'}</div>`;return;}
+  nl.innerHTML=items.map(n=>{const cat=CATS[n.category]||CATS.career;const isS=stocked.includes(n.id);const enc=encodeURIComponent((n.title||'').slice(0,80));const valid=n.url&&n.url.startsWith('http');return`<div class="ncard" onclick="askNews('${enc}')"><div class="ncard-top"><div class="cdot" style="background:${cat.c}"></div><div class="ntitle">${n.title||'タイトル不明'}</div><button class="sbtn${isS?' on':''}" onclick="toggleStk('${n.id}',this,event)">${isS?'★':'☆'}</button></div><div class="nmeta"><span class="nsrc">${n.isGlobal?'🌍':'📰'} ${n.source||'不明'}</span>${n.date?`<span class="ndate">${n.date}</span>`:''}<span class="npill" style="background:${cat.c}18;color:${cat.c}">${cat.l}</span></div>${n.summary?`<div class="nsum">${n.summary}</div>`:''}${valid?`<a class="nlnk" href="${n.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">記事を読む →</a>`:''}</div>`;}).join('');
+}
+function clearKw(){document.getElementById('kw').value='';render();}
+function swCat(cat,btn){curCat=cat;showStk=false;document.getElementById('stkToggle').className='stk-btn';document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');render();}
+function switchPanel(panel,btn){document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');const np=document.getElementById('newsPane');const cp=document.getElementById('chatPane');if(panel==='news'){np.classList.remove('mobile-hide');cp.classList.remove('mobile-show');}else{np.classList.add('mobile-hide');cp.classList.add('mobile-show');}}
+function askNews(enc){const title=decodeURIComponent(enc);const ta=document.getElementById('cta');ta.value=`「${title}」についてライフシフトの観点から詳しく解説してください。`;ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,80)+'px';if(window.innerWidth<=640)switchPanel('chat',document.querySelectorAll('.ptab')[1]);ta.focus();}
+function qQ(q){document.getElementById('cta').value=q;sendChat();}
+function appendMsg(role,text){const c=document.getElementById('cmsgs');const d=document.createElement('div');const id='cp_'+Date.now();d.className='msg '+role;d.innerHTML=`<div class="bub"${role==='a'?` id="${id}"`:''}>${text.replace(/\n/g,'<br>')}</div><div style="display:flex;align-items:center;gap:6px"><div class="mt">${nowStr()}</div>${role==='a'?`<button class="copy-btn" onclick="copyText('${id}')">コピー</button>`:''}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function copyText(id){const el=document.getElementById(id);if(!el)return;navigator.clipboard.writeText(el.innerText).then(()=>{const btn=el.parentElement.querySelector('.copy-btn');if(btn){btn.textContent='✓ コピー済み';setTimeout(()=>btn.textContent='コピー',1500);}});}
+function showTyping(){const c=document.getElementById('cmsgs');const d=document.createElement('div');d.className='msg a';d.id='typ';d.innerHTML=`<div class="bub"><div class="dots"><span></span><span></span><span></span></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function hideTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+function clearChat(){chatHist=[];document.getElementById('cmsgs').innerHTML=`<div class="msg a"><div class="bub">チャット履歴をクリアしました。新しい質問をどうぞ！</div><div class="mt">${nowStr()}</div></div>`;}
+async function sendChat(){
+  if(chatBusy)return;
+  const ta=document.getElementById('cta');const text=ta.value.trim();if(!text)return;
+  ta.value='';ta.style.height='auto';chatBusy=true;document.getElementById('sendBtn').disabled=true;
+  appendMsg('u',text);chatHist.push({role:'user',content:text});showTyping();
+  const recentNews=allNews.slice(0,25).map(n=>`[${CATS[n.category]?.l||n.category}][${n.source}] ${n.title} — ${n.summary||''}`).join('\n');
+  const stocked=getStocked();const stkNews=allNews.filter(n=>stocked.includes(n.id)).map(n=>`★[${n.source}] ${n.title}`).join('\n');
+  try{
+    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたは「ライフシフト」専門AIアドバイザーです。\n${LSU_CONTEXT}\n【収集済みニュース】\n${recentNews||'（取得中）'}${stkNews?`\n【ストック記事】\n${stkNews}`:''}\n回答: 日本語・具体的・最大400字。LSUテキストと最新ニュースを組み合わせ。必要に応じてウェブ検索で補完。`,messages:chatHist.slice(-10)})});
+    const d=await r.json();const reply=d.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim()||'申し訳ありません。もう一度お試しください。';
+    chatHist.push({role:'assistant',content:reply});hideTyping();appendMsg('a',reply);
+  }catch{hideTyping();appendMsg('a','エラーが発生しました。しばらくしてから再度お試しください。');}
+  chatBusy=false;document.getElementById('sendBtn').disabled=false;
+}
+updateStkCount();
+fetchAll();
+</script>
+</body>
+</html>
