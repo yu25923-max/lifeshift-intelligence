@@ -225,7 +225,7 @@ function toggleStkView(){showStk=!showStk;document.getElementById('stkToggle').c
 function setProgress(pct){document.getElementById('prog').style.width=pct+'%';}
 async function fetchQ(qObj){
   try{
-    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたはライフシフト専門ニュース収集AIです。ウェブ検索で最新記事を3件取得し、JSON配列のみ返してください。信頼できる情報源のみ: NHK,日経,読売,朝日,毎日,厚労省,内閣府,経産省,Reuters,BBC,FT,OECD等。除外: まとめサイト,転載,個人ブログ。各要素: id,title,source,url,summary(80字以内),date,category(${qObj.c}),isGlobal(boolean)`,messages:[{role:'user',content:`「${qObj.q}」を検索し、最新の信頼できるニュース3件をJSON配列で返してください。`}]})});
+    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたはライフシフト専門ニュース収集AIです。ウェブ検索で最新記事を3件取得し、JSON配列のみ返してください。信頼できる情報源のみ: NHK,日経,読売,朝日,毎日,厚労省,内閣府,経産省,Reuters,BBC,FT,OECD等。除外: まとめサイト,転載,個人ブログ。各要素: id,title,source,url,summary(80字以内),date,category(${qObj.c}),isGlobal(boolean)`,messages:[{role:'user',content:`「${qObj.q}」を検索し、最新の信頼できるニュース3件をJSON配列で返してください。`}]})});
     if(!r.ok)return[];
     const d=await r.json();
     const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
@@ -288,7 +288,7 @@ async function sendChat(){
   const recentNews=allNews.slice(0,25).map(n=>`[${CATS[n.category]?.l||n.category}][${n.source}] ${n.title} — ${n.summary||''}`).join('\n');
   const stocked=getStocked();const stkNews=allNews.filter(n=>stocked.includes(n.id)).map(n=>`★[${n.source}] ${n.title}`).join('\n');
   try{
-    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたは「ライフシフト」専門AIアドバイザーです。\n${LSU_CONTEXT}\n【収集済みニュース】\n${recentNews||'（取得中）'}${stkNews?`\n【ストック記事】\n${stkNews}`:''}\n回答: 日本語・具体的・最大400字。LSUテキストと最新ニュースを組み合わせ。必要に応じてウェブ検索で補完。`,messages:chatHist.slice(-10)})});
+    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたは「ライフシフト」専門AIアドバイザーです。\n${LSU_CONTEXT}\n【収集済みニュース】\n${recentNews||'（取得中）'}${stkNews?`\n【ストック記事】\n${stkNews}`:''}\n回答: 日本語・具体的・最大400字。LSUテキストと最新ニュースを組み合わせ。必要に応じてウェブ検索で補完。`,messages:chatHist.slice(-10)})});
     const d=await r.json();const reply=d.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim()||'申し訳ありません。もう一度お試しください。';
     chatHist.push({role:'assistant',content:reply});hideTyping();appendMsg('a',reply);
   }catch{hideTyping();appendMsg('a','エラーが発生しました。しばらくしてから再度お試しください。');}
