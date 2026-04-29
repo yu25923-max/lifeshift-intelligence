@@ -337,13 +337,12 @@ async function fetchAll(manual = false) {
   document.getElementById('updBadge').textContent = '取得中...';
   allNews = [];
 
-  const BATCH = 4;
-  for (let i = 0; i < QUERIES.length; i += BATCH) {
-    const chunk = QUERIES.slice(i, i + BATCH);
-    const results = await Promise.all(chunk.map(q => fetchQ(q)));
-    results.forEach(r => allNews = allNews.concat(r));
-    setProgress(Math.round(Math.min(i + BATCH, QUERIES.length) / QUERIES.length * 100));
-    render();
+  // 1件ずつ順番に取得（タイムアウト防止）
+  for (let i = 0; i < QUERIES.length; i++) {
+    const result = await fetchQ(QUERIES[i]);
+    allNews = allNews.concat(result);
+    setProgress(Math.round((i + 1) / QUERIES.length * 100));
+    if (i % 3 === 2) render(); // 3件ごとに画面更新
   }
 
   // 重複除去
