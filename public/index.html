@@ -296,7 +296,7 @@ async function fetchQ(qObj) {
     return arr.map((a, i) => ({
       ...a,
       id: a.id || (qObj.c + '_' + Date.now() + '_' + i),
-      category: qObj.c  // カテゴリを必ず上書き
+      category: qObj.c
     }));
   } catch { return []; }
 }
