@@ -297,7 +297,7 @@ async function fetchQ(qObj) {
 信頼できる情報源のみ: NHK,日経,読売,朝日,毎日,厚労省,内閣府,経産省,Reuters,BBC,FT,OECD等。
 除外: まとめサイト,転載,個人ブログ。
 各要素: id,title,source,url,summary(80字以内),date,category(${qObj.c}),isGlobal(boolean)`,
-        messages: [{ role: 'user', content: `今日の日付は${new Date().toLocaleDateString('ja-JP')}です。「${qObj.q}」を検索し、最新の信頼できるニュース3件をJSON配列で返してください。` }]
+        messages: [{ role: 'user', content: `今日は${new Date().toLocaleDateString('ja-JP')}です。「${qObj.q}」を検索し、最新ニュース3件をJSON配列のみで返してください。` }]
       })
     });
     if (!r.ok) return [];
@@ -306,14 +306,17 @@ async function fetchQ(qObj) {
     const s = txt.indexOf('['), e = txt.lastIndexOf(']');
     if (s < 0 || e < 0) return [];
     const arr = JSON.parse(txt.slice(s, e + 1));
-    return arr.map((a, i) => ({ ...a, id: a.id || (qObj.c + '_' + Date.now() + '_' + i), category: qObj.c }));
+    return arr.map((a, i) => ({
+      ...a,
+      id: a.id || (qObj.c + '_' + Date.now() + '_' + i),
+      category: qObj.c  // カテゴリを必ず上書き
+    }));
   } catch { return []; }
 }
 
 async function fetchAll(manual = false) {
   const todayKey = getTodayKey();
 
-  // 手動更新でない場合は今日のキャッシュを確認
   if (!manual) {
     try {
       const cached = localStorage.getItem(todayKey);
@@ -331,28 +334,30 @@ async function fetchAll(manual = false) {
     } catch {}
   }
 
-  // キャッシュがないか手動更新の場合は新規取得
   cleanOldCache();
   document.getElementById('nl').innerHTML = '<div class="spin-w"><div class="spin"></div>最新ニュースを取得中...</div>';
   document.getElementById('updBadge').textContent = '取得中...';
   allNews = [];
 
-  // 1件ずつ順番に取得（タイムアウト防止）
+  // 1件ずつ順番に取得（カテゴリを確実に設定）
   for (let i = 0; i < QUERIES.length; i++) {
-    const result = await fetchQ(QUERIES[i]);
-    allNews = allNews.concat(result);
+    const q = QUERIES[i];
+    const results = await fetchQ(q);
+    // カテゴリを強制的に上書き
+    const tagged = results.map(n => ({ ...n, category: q.c }));
+    allNews = allNews.concat(tagged);
     setProgress(Math.round((i + 1) / QUERIES.length * 100));
-    if (i % 3 === 2) render(); // 3件ごとに画面更新
+    render();
+    // 各リクエスト間に少し待機
+    await new Promise(resolve => setTimeout(resolve, 200));
   }
 
-  // 重複除去
   const seen = new Set();
   allNews = allNews.filter(n => {
     if (!n.title || seen.has(n.title)) return false;
     seen.add(n.title); return true;
   });
 
-  // 今日のキャッシュとして保存
   try { localStorage.setItem(todayKey, JSON.stringify(allNews)); } catch {}
 
   setProgress(100);
@@ -361,7 +366,6 @@ async function fetchAll(manual = false) {
   updateStkCount();
   setTimeout(() => setProgress(0), 1500);
 }
-
 // ═══════════════════════════════════════════
 // レンダリング
 // ═══════════════════════════════════════════
