@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>ライフシフト インテリジェンス</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23e84c4c'/><text y='.9em' font-size='72' x='10' fill='white' font-family='serif' font-weight='700'>LS</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,7 +52,6 @@
     .news-panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; background: var(--bg); }
     .news-count { font-size: 11px; color: var(--muted); padding: 6px 14px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
     .clr-kw { font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; cursor: pointer; font-family: inherit; }
-    .clr-kw:hover { color: var(--red); border-color: var(--red); }
     .news-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
     .ncard { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all .15s; }
     .ncard:hover { border-color: #bcc4d0; box-shadow: 0 2px 8px rgba(0,0,0,.06); transform: translateY(-1px); }
@@ -76,7 +78,6 @@
     .csub { font-size: 11px; color: var(--muted); }
     .online { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; margin-left: auto; flex-shrink: 0; }
     .cbtn-clear { font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; margin-left: 6px; }
-    .cbtn-clear:hover { color: var(--red); border-color: var(--red); }
     .cmsgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
     .msg { max-width: 93%; display: flex; flex-direction: column; gap: 3px; }
     .msg.u { align-self: flex-end; align-items: flex-end; }
@@ -180,10 +181,42 @@
     </div>
   </div>
 </div>
+
 <script>
-const API_ENDPOINT='/api/claude';
-const CATS={all:{l:'すべて',c:'#0a2240'},career:{l:'キャリア',c:'#1a6fc4'},money:{l:'マネー',c:'#2e7d32'},health:{l:'健康',c:'#c62828'},policy:{l:'政策',c:'#6a1b9a'},global:{l:'グローバル',c:'#e65100'},innovation:{l:'イノベ',c:'#00695c'}};
-const QUERIES=[
+// ═══════════════════════════════════════════
+// キャッシュキー（日付ベース：1日1回更新）
+// ═══════════════════════════════════════════
+function getTodayKey() {
+  const d = new Date();
+  return `ls_news_${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+}
+
+function getYesterdayKey() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `ls_news_${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+}
+
+// 古いキャッシュを削除
+function cleanOldCache() {
+  const todayKey = getTodayKey();
+  const yesterdayKey = getYesterdayKey();
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('ls_news_') && k !== todayKey && k !== yesterdayKey) {
+      localStorage.removeItem(k);
+    }
+  }
+}
+
+const CATS = {
+  all:{l:'すべて',c:'#0a2240'}, career:{l:'キャリア',c:'#1a6fc4'},
+  money:{l:'マネー',c:'#2e7d32'}, health:{l:'健康',c:'#c62828'},
+  policy:{l:'政策',c:'#6a1b9a'}, global:{l:'グローバル',c:'#e65100'},
+  innovation:{l:'イノベ',c:'#00695c'}
+};
+
+const QUERIES = [
   {q:'ミドルシニア キャリア転換 転職 2026',c:'career'},
   {q:'定年延長 継続雇用 70歳 シニア 2026',c:'career'},
   {q:'副業 複業 50代 フリーランス 独立 2026',c:'career'},
@@ -205,7 +238,8 @@ const QUERIES=[
   {q:'AI シニア デジタル活用 EdTech 2026',c:'innovation'},
   {q:'ヘルステック 高齢者 スタートアップ 2026',c:'innovation'}
 ];
-const LSU_CONTEXT=`【ライフシフト大学テキスト要約】
+
+const LSU_CONTEXT = `【ライフシフト大学テキスト要約】
 ■変身資産5領域: ①マインド②知恵③仲間④評判⑤健康
 ■マルチステージ型人生: 就労期60年（20〜80歳）のマルチステージへ
 ■80歳現役時代: 男81歳・女87歳（2024年）。長期間労働へ。
@@ -213,87 +247,285 @@ const LSU_CONTEXT=`【ライフシフト大学テキスト要約】
 ■変身資産チェック: Can×Will→Create。10年後ビジョンへのギャップを埋める。
 ■支援型リーダーシップ: 共感力・傾聴力・モチベート力・コーチング力
 ■イノベーターシップ: VUCAの時代に変革し続ける力。青銀共創。`;
-let allNews=[],curCat='all',showStk=false,chatHist=[],chatBusy=false;
-const TOTAL_Q=QUERIES.length;
-function nowStr(){return new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});}
-document.getElementById('initT').textContent=nowStr();
-function getStocked(){try{return JSON.parse(localStorage.getItem('ls_stocked')||'[]');}catch{return[];}}
-function saveStocked(a){try{localStorage.setItem('ls_stocked',JSON.stringify(a));}catch{}}
-function toggleStk(id,btn,e){e.stopPropagation();let s=getStocked();const i=s.indexOf(id);if(i>=0){s.splice(i,1);btn.classList.remove('on');btn.textContent='☆';}else{s.push(id);btn.classList.add('on');btn.textContent='★';}saveStocked(s);updateStkCount(s.length);if(showStk)render();}
-function updateStkCount(n){if(n===undefined)n=getStocked().length;document.getElementById('stkCnt').textContent=n;document.getElementById('stkToggle').className='stk-btn'+(showStk?' on':'');}
-function toggleStkView(){showStk=!showStk;document.getElementById('stkToggle').className='stk-btn'+(showStk?' on':'');render();}
-function setProgress(pct){document.getElementById('prog').style.width=pct+'%';}
-async function fetchQ(qObj){
-  try{
-    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたはライフシフト専門ニュース収集AIです。ウェブ検索で最新記事を3件取得し、JSON配列のみ返してください。信頼できる情報源のみ: NHK,日経,読売,朝日,毎日,厚労省,内閣府,経産省,Reuters,BBC,FT,OECD等。除外: まとめサイト,転載,個人ブログ。各要素: id,title,source,url,summary(80字以内),date,category(${qObj.c}),isGlobal(boolean)`,messages:[{role:'user',content:`「${qObj.q}」を検索し、最新の信頼できるニュース3件をJSON配列で返してください。`}]})});
-    if(!r.ok)return[];
-    const d=await r.json();
-    const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-    const s=txt.indexOf('['),e=txt.lastIndexOf(']');
-    if(s<0||e<0)return[];
-    const arr=JSON.parse(txt.slice(s,e+1));
-    return arr.map((a,i)=>({...a,id:a.id||(qObj.c+'_'+Date.now()+'_'+i),category:qObj.c}));
-  }catch{return[];}
+
+let allNews = [], curCat = 'all', showStk = false, chatHist = [], chatBusy = false;
+
+function nowStr() { return new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}); }
+document.getElementById('initT').textContent = nowStr();
+
+function getStocked()  { try { return JSON.parse(localStorage.getItem('ls_stocked') || '[]'); } catch { return []; } }
+function saveStocked(a){ try { localStorage.setItem('ls_stocked', JSON.stringify(a)); } catch {} }
+
+function toggleStk(id, btn, e) {
+  e.stopPropagation();
+  let s = getStocked();
+  const i = s.indexOf(id);
+  if (i >= 0) { s.splice(i, 1); btn.classList.remove('on'); btn.textContent = '☆'; }
+  else         { s.push(id);    btn.classList.add('on');    btn.textContent = '★'; }
+  saveStocked(s);
+  updateStkCount(s.length);
+  if (showStk) render();
 }
-async function fetchAll(manual=false){
-  if(manual){allNews=[];setProgress(0);}
-  document.getElementById('nl').innerHTML='<div class="spin-w"><div class="spin"></div>ニュースを取得中...</div>';
-  document.getElementById('updBadge').textContent='取得中...';
-  const BATCH=4;
-  for(let i=0;i<QUERIES.length;i+=BATCH){
-    const chunk=QUERIES.slice(i,i+BATCH);
-    const results=await Promise.all(chunk.map(q=>fetchQ(q)));
-    results.forEach(r=>allNews=allNews.concat(r));
-    setProgress(Math.round(Math.min(i+BATCH,QUERIES.length)/TOTAL_Q*100));
+
+function updateStkCount(n) {
+  if (n === undefined) n = getStocked().length;
+  document.getElementById('stkCnt').textContent = n;
+  document.getElementById('stkToggle').className = 'stk-btn' + (showStk ? ' on' : '');
+}
+
+function toggleStkView() {
+  showStk = !showStk;
+  document.getElementById('stkToggle').className = 'stk-btn' + (showStk ? ' on' : '');
+  render();
+}
+
+function setProgress(pct) { document.getElementById('prog').style.width = pct + '%'; }
+
+// ═══════════════════════════════════════════
+// ニュース取得（日付ベースキャッシュ付き）
+// ═══════════════════════════════════════════
+async function fetchQ(qObj) {
+  try {
+    const r = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `あなたはライフシフト専門ニュース収集AIです。ウェブ検索で最新記事を3件取得し、JSON配列のみ返してください。
+信頼できる情報源のみ: NHK,日経,読売,朝日,毎日,厚労省,内閣府,経産省,Reuters,BBC,FT,OECD等。
+除外: まとめサイト,転載,個人ブログ。
+各要素: id,title,source,url,summary(80字以内),date,category(${qObj.c}),isGlobal(boolean)`,
+        messages: [{ role: 'user', content: `今日の日付は${new Date().toLocaleDateString('ja-JP')}です。「${qObj.q}」を検索し、最新の信頼できるニュース3件をJSON配列で返してください。` }]
+      })
+    });
+    if (!r.ok) return [];
+    const d = await r.json();
+    const txt = d.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    const s = txt.indexOf('['), e = txt.lastIndexOf(']');
+    if (s < 0 || e < 0) return [];
+    const arr = JSON.parse(txt.slice(s, e + 1));
+    return arr.map((a, i) => ({ ...a, id: a.id || (qObj.c + '_' + Date.now() + '_' + i), category: qObj.c }));
+  } catch { return []; }
+}
+
+async function fetchAll(manual = false) {
+  const todayKey = getTodayKey();
+
+  // 手動更新でない場合は今日のキャッシュを確認
+  if (!manual) {
+    try {
+      const cached = localStorage.getItem(todayKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.length > 0) {
+          allNews = parsed;
+          const ts = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+          document.getElementById('updBadge').textContent = `更新: ${ts}（キャッシュ）`;
+          render();
+          updateStkCount();
+          return;
+        }
+      }
+    } catch {}
+  }
+
+  // キャッシュがないか手動更新の場合は新規取得
+  cleanOldCache();
+  document.getElementById('nl').innerHTML = '<div class="spin-w"><div class="spin"></div>最新ニュースを取得中...</div>';
+  document.getElementById('updBadge').textContent = '取得中...';
+  allNews = [];
+
+  const BATCH = 4;
+  for (let i = 0; i < QUERIES.length; i += BATCH) {
+    const chunk = QUERIES.slice(i, i + BATCH);
+    const results = await Promise.all(chunk.map(q => fetchQ(q)));
+    results.forEach(r => allNews = allNews.concat(r));
+    setProgress(Math.round(Math.min(i + BATCH, QUERIES.length) / QUERIES.length * 100));
     render();
   }
+
+  // 重複除去
+  const seen = new Set();
+  allNews = allNews.filter(n => {
+    if (!n.title || seen.has(n.title)) return false;
+    seen.add(n.title); return true;
+  });
+
+  // 今日のキャッシュとして保存
+  try { localStorage.setItem(todayKey, JSON.stringify(allNews)); } catch {}
+
   setProgress(100);
-  const ts=new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('updBadge').textContent='更新: '+ts;
+  const ts = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('updBadge').textContent = '更新: ' + ts;
   updateStkCount();
-  setTimeout(()=>setProgress(0),1500);
+  setTimeout(() => setProgress(0), 1500);
 }
-function render(){
-  const kw=document.getElementById('kw').value.trim().toLowerCase();
-  const sort=document.getElementById('sortSel').value;
-  const stocked=getStocked();
-  document.getElementById('clearKwBtn').style.display=kw?'inline':'none';
-  let base=showStk?allNews.filter(n=>stocked.includes(n.id)):(curCat==='all'?allNews:allNews.filter(n=>n.category===curCat));
-  if(kw)base=base.filter(n=>[(n.title||''),(n.summary||''),(n.source||'')].join(' ').toLowerCase().includes(kw));
-  const seen=new Set();
-  base=base.filter(n=>{if(!n.title||seen.has(n.title))return false;seen.add(n.title);return true;});
-  if(sort==='src')base.sort((a,b)=>(a.source||'').localeCompare(b.source||'','ja'));
-  else if(sort==='old')base.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  const items=base.slice(0,50);
-  document.getElementById('nc').textContent=`${items.length}件表示 / 取得済み${allNews.length}件${showStk?' [ストック]':''}${kw?` | "${kw}"`:''}`;
-  const nl=document.getElementById('nl');
-  if(items.length===0){nl.innerHTML=`<div class="empty">${showStk?'⭐ ストックした記事がありません':'📭 該当する記事がありません'}</div>`;return;}
-  nl.innerHTML=items.map(n=>{const cat=CATS[n.category]||CATS.career;const isS=stocked.includes(n.id);const enc=encodeURIComponent((n.title||'').slice(0,80));const valid=n.url&&n.url.startsWith('http');return`<div class="ncard" onclick="askNews('${enc}')"><div class="ncard-top"><div class="cdot" style="background:${cat.c}"></div><div class="ntitle">${n.title||'タイトル不明'}</div><button class="sbtn${isS?' on':''}" onclick="toggleStk('${n.id}',this,event)">${isS?'★':'☆'}</button></div><div class="nmeta"><span class="nsrc">${n.isGlobal?'🌍':'📰'} ${n.source||'不明'}</span>${n.date?`<span class="ndate">${n.date}</span>`:''}<span class="npill" style="background:${cat.c}18;color:${cat.c}">${cat.l}</span></div>${n.summary?`<div class="nsum">${n.summary}</div>`:''}${valid?`<a class="nlnk" href="${n.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">記事を読む →</a>`:''}</div>`;}).join('');
+
+// ═══════════════════════════════════════════
+// レンダリング
+// ═══════════════════════════════════════════
+function render() {
+  const kw = document.getElementById('kw').value.trim().toLowerCase();
+  const sort = document.getElementById('sortSel').value;
+  const stocked = getStocked();
+  document.getElementById('clearKwBtn').style.display = kw ? 'inline' : 'none';
+
+  let base = showStk
+    ? allNews.filter(n => stocked.includes(n.id))
+    : (curCat === 'all' ? allNews : allNews.filter(n => n.category === curCat));
+
+  if (kw) base = base.filter(n => [(n.title||''),(n.summary||''),(n.source||'')].join(' ').toLowerCase().includes(kw));
+
+  const seen = new Set();
+  base = base.filter(n => { if (!n.title || seen.has(n.title)) return false; seen.add(n.title); return true; });
+
+  if (sort === 'src') base.sort((a, b) => (a.source||'').localeCompare(b.source||'', 'ja'));
+  else if (sort === 'old') base.sort((a, b) => (a.date||'').localeCompare(b.date||''));
+
+  const items = base.slice(0, 50);
+  document.getElementById('nc').textContent = `${items.length}件表示 / 取得済み${allNews.length}件${showStk?' [ストック]':''}${kw?` | "${kw}"`:''}`;
+
+  const nl = document.getElementById('nl');
+  if (items.length === 0) {
+    nl.innerHTML = `<div class="empty">${showStk ? '⭐ ストックした記事がありません' : '📭 該当する記事がありません'}</div>`;
+    return;
+  }
+
+  nl.innerHTML = items.map(n => {
+    const cat = CATS[n.category] || CATS.career;
+    const isS = stocked.includes(n.id);
+    const enc = encodeURIComponent((n.title||'').slice(0, 80));
+    const valid = n.url && n.url.startsWith('http');
+    return `<div class="ncard" onclick="askNews('${enc}')">
+      <div class="ncard-top">
+        <div class="cdot" style="background:${cat.c}"></div>
+        <div class="ntitle">${n.title||'タイトル不明'}</div>
+        <button class="sbtn${isS?' on':''}" onclick="toggleStk('${n.id}',this,event)">${isS?'★':'☆'}</button>
+      </div>
+      <div class="nmeta">
+        <span class="nsrc">${n.isGlobal?'🌍':'📰'} ${n.source||'不明'}</span>
+        ${n.date?`<span class="ndate">${n.date}</span>`:''}
+        <span class="npill" style="background:${cat.c}18;color:${cat.c}">${cat.l}</span>
+      </div>
+      ${n.summary?`<div class="nsum">${n.summary}</div>`:''}
+      ${valid?`<a class="nlnk" href="${n.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">記事を読む →</a>`:''}
+    </div>`;
+  }).join('');
 }
-function clearKw(){document.getElementById('kw').value='';render();}
-function swCat(cat,btn){curCat=cat;showStk=false;document.getElementById('stkToggle').className='stk-btn';document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');render();}
-function switchPanel(panel,btn){document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');const np=document.getElementById('newsPane');const cp=document.getElementById('chatPane');if(panel==='news'){np.classList.remove('mobile-hide');cp.classList.remove('mobile-show');}else{np.classList.add('mobile-hide');cp.classList.add('mobile-show');}}
-function askNews(enc){const title=decodeURIComponent(enc);const ta=document.getElementById('cta');ta.value=`「${title}」についてライフシフトの観点から詳しく解説してください。`;ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,80)+'px';if(window.innerWidth<=640)switchPanel('chat',document.querySelectorAll('.ptab')[1]);ta.focus();}
-function qQ(q){document.getElementById('cta').value=q;sendChat();}
-function appendMsg(role,text){const c=document.getElementById('cmsgs');const d=document.createElement('div');const id='cp_'+Date.now();d.className='msg '+role;d.innerHTML=`<div class="bub"${role==='a'?` id="${id}"`:''}>${text.replace(/\n/g,'<br>')}</div><div style="display:flex;align-items:center;gap:6px"><div class="mt">${nowStr()}</div>${role==='a'?`<button class="copy-btn" onclick="copyText('${id}')">コピー</button>`:''}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
-function copyText(id){const el=document.getElementById(id);if(!el)return;navigator.clipboard.writeText(el.innerText).then(()=>{const btn=el.parentElement.querySelector('.copy-btn');if(btn){btn.textContent='✓ コピー済み';setTimeout(()=>btn.textContent='コピー',1500);}});}
-function showTyping(){const c=document.getElementById('cmsgs');const d=document.createElement('div');d.className='msg a';d.id='typ';d.innerHTML=`<div class="bub"><div class="dots"><span></span><span></span><span></span></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
-function hideTyping(){const e=document.getElementById('typ');if(e)e.remove();}
-function clearChat(){chatHist=[];document.getElementById('cmsgs').innerHTML=`<div class="msg a"><div class="bub">チャット履歴をクリアしました。新しい質問をどうぞ！</div><div class="mt">${nowStr()}</div></div>`;}
-async function sendChat(){
-  if(chatBusy)return;
-  const ta=document.getElementById('cta');const text=ta.value.trim();if(!text)return;
-  ta.value='';ta.style.height='auto';chatBusy=true;document.getElementById('sendBtn').disabled=true;
-  appendMsg('u',text);chatHist.push({role:'user',content:text});showTyping();
-  const recentNews=allNews.slice(0,25).map(n=>`[${CATS[n.category]?.l||n.category}][${n.source}] ${n.title} — ${n.summary||''}`).join('\n');
-  const stocked=getStocked();const stkNews=allNews.filter(n=>stocked.includes(n.id)).map(n=>`★[${n.source}] ${n.title}`).join('\n');
-  try{
-    const r=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:`あなたは「ライフシフト」専門AIアドバイザーです。\n${LSU_CONTEXT}\n【収集済みニュース】\n${recentNews||'（取得中）'}${stkNews?`\n【ストック記事】\n${stkNews}`:''}\n回答: 日本語・具体的・最大400字。LSUテキストと最新ニュースを組み合わせ。必要に応じてウェブ検索で補完。`,messages:chatHist.slice(-10)})});
-    const d=await r.json();const reply=d.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim()||'申し訳ありません。もう一度お試しください。';
-    chatHist.push({role:'assistant',content:reply});hideTyping();appendMsg('a',reply);
-  }catch{hideTyping();appendMsg('a','エラーが発生しました。しばらくしてから再度お試しください。');}
-  chatBusy=false;document.getElementById('sendBtn').disabled=false;
+
+function clearKw() { document.getElementById('kw').value = ''; render(); }
+function swCat(cat, btn) {
+  curCat = cat; showStk = false;
+  document.getElementById('stkToggle').className = 'stk-btn';
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  render();
 }
+
+function switchPanel(panel, btn) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  const np = document.getElementById('newsPane');
+  const cp = document.getElementById('chatPane');
+  if (panel === 'news') { np.classList.remove('mobile-hide'); cp.classList.remove('mobile-show'); }
+  else { np.classList.add('mobile-hide'); cp.classList.add('mobile-show'); }
+}
+
+function askNews(enc) {
+  const title = decodeURIComponent(enc);
+  const ta = document.getElementById('cta');
+  ta.value = `「${title}」についてライフシフトの観点から詳しく解説してください。`;
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 80) + 'px';
+  if (window.innerWidth <= 640) switchPanel('chat', document.querySelectorAll('.ptab')[1]);
+  ta.focus();
+}
+
+function qQ(q) { document.getElementById('cta').value = q; sendChat(); }
+
+function appendMsg(role, text) {
+  const c = document.getElementById('cmsgs');
+  const d = document.createElement('div');
+  const id = 'cp_' + Date.now();
+  d.className = 'msg ' + role;
+  d.innerHTML = `<div class="bub"${role==='a'?` id="${id}"`:''}>${text.replace(/\n/g,'<br>')}</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="mt">${nowStr()}</div>
+      ${role==='a'?`<button class="copy-btn" onclick="copyText('${id}')">コピー</button>`:''}
+    </div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    const btn = el.parentElement.querySelector('.copy-btn');
+    if (btn) { btn.textContent = '✓ コピー済み'; setTimeout(() => btn.textContent = 'コピー', 1500); }
+  });
+}
+
+function showTyping() {
+  const c = document.getElementById('cmsgs');
+  const d = document.createElement('div');
+  d.className = 'msg a'; d.id = 'typ';
+  d.innerHTML = `<div class="bub"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function hideTyping() { const e = document.getElementById('typ'); if (e) e.remove(); }
+
+function clearChat() {
+  chatHist = [];
+  document.getElementById('cmsgs').innerHTML =
+    `<div class="msg a"><div class="bub">チャット履歴をクリアしました。新しい質問をどうぞ！</div><div class="mt">${nowStr()}</div></div>`;
+}
+
+async function sendChat() {
+  if (chatBusy) return;
+  const ta = document.getElementById('cta');
+  const text = ta.value.trim();
+  if (!text) return;
+  ta.value = ''; ta.style.height = 'auto';
+  chatBusy = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  appendMsg('u', text);
+  chatHist.push({ role: 'user', content: text });
+  showTyping();
+
+  const recentNews = allNews.slice(0, 25).map(n => `[${CATS[n.category]?.l||n.category}][${n.source}] ${n.title} — ${n.summary||''}`).join('\n');
+  const stocked = getStocked();
+  const stkNews = allNews.filter(n => stocked.includes(n.id)).map(n => `★[${n.source}] ${n.title}`).join('\n');
+
+  try {
+    const r = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `あなたは「ライフシフト」専門AIアドバイザーです。\n${LSU_CONTEXT}\n【収集済みニュース】\n${recentNews||'（取得中）'}${stkNews?`\n【ストック記事】\n${stkNews}`:''}\n回答: 日本語・具体的・最大400字。`,
+        messages: chatHist.slice(-10)
+      })
+    });
+    const d = await r.json();
+    const reply = d.content.filter(b => b.type === 'text').map(b => b.text).join('').trim() || '申し訳ありません。もう一度お試しください。';
+    chatHist.push({ role: 'assistant', content: reply });
+    hideTyping();
+    appendMsg('a', reply);
+  } catch {
+    hideTyping();
+    appendMsg('a', 'エラーが発生しました。しばらくしてから再度お試しください。');
+  }
+
+  chatBusy = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
 updateStkCount();
 fetchAll();
 </script>
