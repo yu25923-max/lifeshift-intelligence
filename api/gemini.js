@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         system_instruction: system ? { parts: [{ text: system }] } : undefined,
         contents,
-        generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+        generationConfig: { maxOutputTokens: 8192, temperature: 0.7 }
       })
     });
 
